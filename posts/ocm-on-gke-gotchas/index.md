@@ -5,6 +5,7 @@ tags: 'kubernetes, gke, ocm, multicluster'
 cover_image: ''
 canonical_url: ''
 published: false
+id: 4796101
 ---
 
 > This is an English translation of my article originally published in Japanese on Zenn: [GKE に Open Cluster Management (OCM) を導入するのにハマったことメモ](https://zenn.dev/key60228/articles/1f9fb60dcc3a2b).
@@ -25,7 +26,7 @@ In this post I'll go over the issues I ran into while rolling out [Open Cluster 
 
 I'll skip the details, but in short, it's a project for managing multiple Kubernetes clusters from one place.
 
-{% github open-cluster-management-io %}
+https://github.com/open-cluster-management-io
 
 It was originally started by Red Hat, donated to the CNCF in 2021, and is currently a Sandbox project.[^1]
 
@@ -42,7 +43,7 @@ The Klusterlet treats every `ManifestWork` in the `Namespace` that shares its `M
 
 OCM has an [add-on](https://open-cluster-management.io/docs/concepts/add-on-extensibility/addon/) mechanism for extending its functionality, and FleetConfig Controller is one of the officially provided add-ons.
 
-{% github open-cluster-management-io/lab %}
+{% github https://github.com/open-cluster-management-io/lab %}
 
 According to the [docs](https://open-cluster-management.io/docs/getting-started/installation/), the de facto standard way to set up OCM is the [clusteradm](https://github.com/open-cluster-management-io/clusteradm) CLI. FleetConfig Controller wraps those clusteradm operations behind two custom resources, `Hub` and `Spoke`.
 
@@ -212,7 +213,7 @@ subjects:
 
 (I also sent a fix upstream and it has been merged, so this shouldn't happen in future releases.)
 
-{% github open-cluster-management-io/lab/pull/249 %}
+{% github https://github.com/open-cluster-management-io/lab/pull/249 %}
 
 ## Wrapping up
 
