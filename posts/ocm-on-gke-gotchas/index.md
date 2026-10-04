@@ -3,7 +3,7 @@ title: 'Gotchas When Setting Up Open Cluster Management (OCM) on GKE'
 description: 'Five things that tripped me up while deploying Open Cluster Management and the FleetConfig Controller add-on on GKE'
 tags: 'kubernetes, gke, ocm, multicluster'
 cover_image: ''
-canonical_url: 'https://zenn.dev/key60228/articles/1f9fb60dcc3a2b'
+canonical_url: ''
 published: false
 ---
 
@@ -11,9 +11,9 @@ published: false
 
 Hi, I'm [@key60228](https://twitter.com/key60228).
 
-In the Kubernetes and Cloud Native world, multi-cluster operations have been getting more and more attention lately, right alongside AI workloads.
+In the Kubernetes and Cloud Native world, multi-cluster operations have been getting more and more attention lately, alongside AI workloads.
 
-There were several sessions on the topic at KubeCon + CloudNativeCon Japan 2026 as well. (The first one below is essentially a "don't go multi-cluster casually" talk.)
+There were several sessions on the topic at KubeCon + CloudNativeCon Japan 2026 as well. (The first one below is essentially a "don't go multi-cluster lightly" talk.)
 
 {% youtube -0gJNQogilQ %}
 
@@ -44,11 +44,11 @@ OCM has an [add-on](https://open-cluster-management.io/docs/concepts/add-on-exte
 
 {% github open-cluster-management-io/lab %}
 
-According to the [docs](https://open-cluster-management.io/docs/getting-started/installation/), the de facto way to set up OCM is the [clusteradm](https://github.com/open-cluster-management-io/clusteradm) CLI. FleetConfig Controller wraps those clusteradm operations behind two custom resources, `Hub` and `Spoke`.
+According to the [docs](https://open-cluster-management.io/docs/getting-started/installation/), the de facto standard way to set up OCM is the [clusteradm](https://github.com/open-cluster-management-io/clusteradm) CLI. FleetConfig Controller wraps those clusteradm operations behind two custom resources, `Hub` and `Spoke`.
 
 The `Hub` CR takes over what `clusteradm init` does (initializing the hub cluster), and the `Spoke` CR takes over what `clusteradm join` does (registering a spoke cluster as a `ManagedCluster`).
 
-We already run Argo CD as part of the platform at AI Shift and wanted to stay as close to GitOps as possible. We also wanted to cut down on the toil of adding spoke clusters and upgrading things like the Klusterlet on existing spokes. So we decided to give it a try.
+We already run Argo CD as part of the platform at my company, AI Shift, and wanted to stay as close to GitOps as possible. We also wanted to cut down on the toil of adding spoke clusters and upgrading things like the Klusterlet on existing spokes. So we decided to give it a try.
 
 ## The environment
 
@@ -157,23 +157,23 @@ Reissuing the token and replacing the Secret fixed it.
 
 ![case-5](./assets/case-5.png)
 
-At some point, the FleetConfig Controller Pod started failing to boot with `CrashLoopBackOff`.
+At some point, the FleetConfig Controller Pod went into `CrashLoopBackOff` and kept crashing.
 
 The fleetconfig-controller-manager logs showed this:
 
 ```
- 2026-08-28T07:28:00Z       ERROR   setup   problem running manager {"error": "failed to create or update global ManagedClusterSetBinding: admission webhook \"managedclustersetbindingvalidators.admission.cluster.open-cluster-management.io\" denied the request: managedclustersets/bind.apps \"global\" is forbidden: user \"system:serviceaccount:fleetconfig-system:fleetconfig-controller-manager\" is not allowed to bind cluster set \"global\""}
+2026-08-28T07:28:00Z       ERROR   setup   problem running manager {"error": "failed to create or update global ManagedClusterSetBinding: admission webhook \"managedclustersetbindingvalidators.admission.cluster.open-cluster-management.io\" denied the request: managedclustersets/bind.apps \"global\" is forbidden: user \"system:serviceaccount:fleetconfig-system:fleetconfig-controller-manager\" is not allowed to bind cluster set \"global\""}
 ```
 
-The cause was that I had created the Hub CR once in namespace `γ`, then moved it to a different namespace `Ζ` (delete and recreate).
+The cause was that I had created the Hub CR once in the `γ` namespace, then moved it to a different namespace, `δ` (by deleting and recreating it).
 
 By default, the FleetConfig Controller Helm chart bundles the OCM CRDs and creates a `ManagedClusterSet` and `ManagedClusterSetBinding` at startup.
 
-Meanwhile, deleting the Hub CR runs `clusteradm clean` under the hood, which also deletes the OCM CRDs.
+On the other hand, deleting the Hub CR runs `clusteradm clean` under the hood, which also deletes the OCM CRDs.
 
 Deleting a CRD deletes its CRs too,[^3] so the `ManagedClusterSetBinding` that FleetConfig Controller had created was gone.
 
-When the FleetConfig Controller Pod later restarted, it tried to recreate the `ManagedClusterSetBinding`, but because of a missing RBAC rule the admission webhook's `SubjectAccessReview` returned Forbidden.
+When the FleetConfig Controller Pod later restarted, it tried to recreate the `ManagedClusterSetBinding`, but because of a missing RBAC rule, the admission webhook's `SubjectAccessReview` returned Forbidden.
 
 On the very first startup, the Hub CR hadn't been initialized yet and the validating webhook didn't exist, so the request skipped the RBAC check and the controller came up fine.
 
@@ -210,7 +210,7 @@ subjects:
     namespace: fleetconfig-system
 ```
 
-(I also sent a fix upstream and it has been merged, so this shouldn't reproduce in future releases.)
+(I also sent a fix upstream and it has been merged, so this shouldn't happen in future releases.)
 
 {% github open-cluster-management-io/lab/pull/249 %}
 
@@ -220,14 +220,7 @@ That's the list of things that tripped me up while getting OCM / fleetconfig-con
 
 I had done a fair amount of testing locally on kind beforehand and figured it would go smoothly, but there were more differences than I expected.
 
-Hopefully this helps anyone who is stuck, or about to get stuck, with the same setup. (If such a person exists!)
-
-## One more thing
-
-AI Shift is actively hiring engineers! If any of this sounds interesting, we'd love to chat in a casual interview. (Online and after 7pm JST both work.)
-
-Interview form:
-https://hrmos.co/pages/cyberagent-group/jobs/1826557091831955459
+Hopefully this helps anyone who is stuck, or about to get stuck, with the same setup. (If anyone out there is!)
 
 ---
 
