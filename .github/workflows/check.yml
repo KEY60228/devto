@@ -1,0 +1,35 @@
+# Dry-run publish on pull requests: validates front matter and image paths
+# without touching dev.to.
+
+name: check
+
+on:
+  pull_request:
+    paths:
+      - 'posts/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+env:
+  DEVTO_CLI_VERSION: 1.4.0
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Dry-run publish
+        env:
+          DEVTO_TOKEN: ${{ secrets.DEVTO_TOKEN }}
+        run: |
+          npx --yes "@sinedied/devto-cli@${DEVTO_CLI_VERSION}" push 'posts/**/*.md' \
+            --dry-run \
+            --repo "${{ github.repository }}" \
+            --branch "${{ github.head_ref }}"
