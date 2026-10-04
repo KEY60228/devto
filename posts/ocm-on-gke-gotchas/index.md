@@ -223,8 +223,6 @@ I had done a fair amount of testing locally on kind beforehand and figured it wo
 
 Hopefully this helps anyone who is stuck, or about to get stuck, with the same setup. (If anyone out there is!)
 
----
-
 [^1]: [How to distribute workloads using Open Cluster Management - Red Hat Developer Blog](https://developers.redhat.com/articles/2023/01/19/how-distribute-workloads-using-open-cluster-management)
 
 [^2]: [About network isolation in GKE - Google Cloud Docs](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/network-isolation#how_authorized_networks_work)
