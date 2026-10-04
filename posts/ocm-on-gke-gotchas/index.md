@@ -1,11 +1,13 @@
 ---
 title: 'Gotchas When Setting Up Open Cluster Management (OCM) on GKE'
-description: 'Five things that tripped me up while deploying Open Cluster Management and the FleetConfig Controller add-on on GKE, and how I fixed each of them.'
+description: 'Five things that tripped me up while deploying Open Cluster Management and the FleetConfig Controller add-on on GKE'
 tags: 'kubernetes, gke, ocm, multicluster'
 cover_image: ''
 canonical_url: 'https://zenn.dev/key60228/articles/1f9fb60dcc3a2b'
 published: false
 ---
+
+> This is an English translation of my article originally published in Japanese on Zenn: [GKE に Open Cluster Management (OCM) を導入するのにハマったことメモ](https://zenn.dev/key60228/articles/1f9fb60dcc3a2b).
 
 Hi, I'm [@key60228](https://twitter.com/key60228).
 
