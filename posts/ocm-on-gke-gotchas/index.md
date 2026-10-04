@@ -1,6 +1,6 @@
 ---
-title: 'Gotchas When Setting Up Open Cluster Management (OCM) on GKE'
-description: 'Five things that tripped me up while deploying Open Cluster Management and the FleetConfig Controller add-on on GKE'
+title: Gotchas When Setting Up Open Cluster Management (OCM) on GKE
+description: Five things that tripped me up while deploying Open Cluster Management and the FleetConfig Controller add-on on GKE
 tags: 'kubernetes, gke, ocm, multicluster'
 cover_image: ''
 canonical_url: ''
