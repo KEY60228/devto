@@ -4,7 +4,7 @@ description: Five things that tripped me up while deploying Open Cluster Managem
 tags: 'kubernetes, gke, ocm, multicluster'
 cover_image: ''
 canonical_url: ''
-published: false
+published: true
 id: 4796101
 ---
 
