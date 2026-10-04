@@ -1,45 +1,57 @@
-# This workflow will push and update articles on dev.to each time a new
-# commit is pushed to the main branch.
+# Push and update articles on dev.to whenever posts change on main.
 #
-# To make it work, you need a dev.to API key, see:
-# https://docs.dev.to/api/#section/Authentication/api_key
+# Required secret:
+#   DEVTO_TOKEN  dev.to API key (https://dev.to/settings/extensions)
 #
-# Once you have generated the token, you need to add them as a secret in your
-# GitHub repository:
-# - DEVTO_TOKEN: your dev.to API key
-# See https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets
-# for more information about GitHub secrets.
+# After publishing, devto-cli writes `id` / `date` back into the front matter.
+# That diff is committed back to main by this workflow.
 
 name: publish
+
 on:
   push:
     branches: [main]
+    paths:
+      - 'posts/**'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: devto-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  DEVTO_CLI_VERSION: 1.4.0
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 14
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - name: Publish articles on dev.to
-      uses: sinedied/publish-devto@v2
-      with:
-        # Your dev.to personal API key to publish and update articles.
-        # See https://docs.dev.to/api/#section/Authentication/api_key
-        devto_key: ${{ secrets.DEVTO_TOKEN }}
-        # Your GitHub personal access token, used to create commits for updated files.
-        # If you have a protected branch, you need to use a personal access token
-        # with the 'repo' permission.
-        # See https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        # (Optional) The files to publish. Default is "posts/**/*.md"
-        files: 'posts/**/*.md'
-        # (Optional) The git branch to use. Default is 'main'.
-        branch: main
-        # (Optional) Use conventional commit messages. Default is false.
-        # See https://www.conventionalcommits.org. 
-        conventional_commits: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Publish articles on dev.to
+        env:
+          DEVTO_TOKEN: ${{ secrets.DEVTO_TOKEN }}
+        run: |
+          npx --yes "@sinedied/devto-cli@${DEVTO_CLI_VERSION}" push 'posts/**/*.md' \
+            --repo "${{ github.repository }}" \
+            --branch main
+
+      - name: Commit updated front matter
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posts
+          if git diff --staged --quiet; then
+            echo "No front matter changes."
+            exit 0
+          fi
+          git commit -m "chore(posts): sync dev.to article metadata [skip ci]"
+          git push
