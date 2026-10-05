@@ -9,7 +9,7 @@ id: 4796101
 date: '2026-10-04T14:31:28Z'
 ---
 
-> This is an English translation of my article originally published in Japanese on Zenn: [GKE に Open Cluster Management (OCM) を導入するのにハマったことメモ](https://zenn.dev/key60228/articles/1f9fb60dcc3a2b).
+> This is an English translation of my article originally published in Japanese on Zenn: [GKE に Open Cluster Management (OCM) を導入するのにハマったことメモ](https://zenn.dev/aishift/articles/050045247128e9).
 
 Hi, I'm [@key60228](https://twitter.com/key60228).
 
